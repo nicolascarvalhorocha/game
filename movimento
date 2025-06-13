@@ -1,0 +1,92 @@
+extends CharacterBody2D
+
+const speed = 100
+var current_dir = "none"
+var is_attacking = false
+
+func _ready():
+	$AnimatedSprite2D.play("parado_baixo")
+	$AnimatedSprite2D.animation_finished.connect(_on_AnimatedSprite2D_animation_finished)
+	
+func _physics_process(delta):
+	if Input.is_action_just_pressed("attack") and not is_attacking:
+		perform_attack()
+	else:
+		player_movement(delta)
+
+func player_movement(delta):
+	if is_attacking:
+		velocity = Vector2.ZERO
+		return
+
+	if Input.is_action_pressed("ui_right"):
+		current_dir = "right"
+		play_anim(1)
+		velocity.x = speed
+		velocity.y = 0
+	elif Input.is_action_pressed("ui_left"):
+		current_dir = "left"
+		play_anim(1)
+		velocity.x = -speed
+		velocity.y = 0
+	elif Input.is_action_pressed("ui_down"):
+		current_dir = "down"
+		play_anim(1)
+		velocity.y = speed
+		velocity.x = 0
+	elif Input.is_action_pressed("ui_up"):
+		current_dir = "up"
+		play_anim(1)
+		velocity.y = -speed
+		velocity.x = 0
+	else:
+		play_anim(0)
+		velocity = Vector2.ZERO
+
+	move_and_slide()
+
+func play_anim(movement):
+	var dir = current_dir
+	var anim = $AnimatedSprite2D
+	
+	if dir == "right":
+		if movement == 1:
+			anim.play("andando_direita ")
+		else:
+			anim.play("parado_direita")
+
+	elif dir == "left":
+		if movement == 1:
+			anim.play("andando_esqueda")
+		else:
+			anim.play("parado_esquerda")
+
+	elif dir == "down":
+		if movement == 1:
+			anim.play("andando_baixo")
+		else:
+			anim.play("parado_baixo")
+
+	elif dir == "up":
+		if movement == 1:
+			anim.play("andando_cima")
+		else:
+			anim.play("parado_cima")
+
+func perform_attack():
+	is_attacking = true
+	var anim = $AnimatedSprite2D
+	
+	match current_dir:
+		"right":
+			anim.play("ataque_direita")
+		"left":
+			anim.play("ataque_esquerda")
+		"down":
+			anim.play("ataque_baixo")
+		"up":
+			anim.play("ataque_cima")
+
+func _on_AnimatedSprite2D_animation_finished():
+	if is_attacking: 
+		is_attacking = false
